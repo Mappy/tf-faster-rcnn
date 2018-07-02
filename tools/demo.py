@@ -22,6 +22,10 @@ from model.nms_wrapper import nms
 
 from utils.timer import Timer
 import tensorflow as tf
+
+import matplotlib
+matplotlib.use('Agg')
+
 import matplotlib.pyplot as plt
 import numpy as np
 import os, cv2
