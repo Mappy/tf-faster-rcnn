@@ -39,13 +39,16 @@ for year in ['2015']:
     name = 'coco_{}_{}'.format(year, split)
     __sets[name] = (lambda split=split, year=year: coco(split, year))
 
+# Set up Mappy database
+for split in ['train', 'test']:
+  name = 'mappy_{}'.format(split)
+  __sets[name] = (lambda split=split: mappy(split))
 
 def get_imdb(name):
   """Get an imdb (image database) by name."""
   if name not in __sets:
     raise KeyError('Unknown dataset: {}'.format(name))
   return __sets[name]()
-
 
 def list_imdbs():
   """List all registered imdbs."""
