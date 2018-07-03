@@ -40,7 +40,7 @@ case ${DATASET} in
     RATIOS="[0.5,1,2]"
     ;;
   mappy)
-    TRAIN_IMDB="mappy_trainval"
+    TRAIN_IMDB="mappy_train"
     TEST_IMDB="mappy_test"
     STEPSIZE="[80000]"
     ITERS=10
