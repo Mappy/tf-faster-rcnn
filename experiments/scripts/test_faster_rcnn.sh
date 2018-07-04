@@ -36,6 +36,13 @@ case ${DATASET} in
     ANCHORS="[4,8,16,32]"
     RATIOS="[0.5,1,2]"
     ;;
+  mappy)
+    TRAIN_IMDB="mappy_train"
+    TEST_IMDB="mappy_test"
+    ITERS=10
+    ANCHORS="[8,16,32]"
+    RATIOS="[0.5,1,2]"
+    ;;
   *)
     echo "No dataset given"
     exit
