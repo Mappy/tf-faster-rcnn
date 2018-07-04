@@ -8,6 +8,7 @@ export PYTHONUNBUFFERED="True"
 GPU_ID=$1
 DATASET=$2
 NET=$3
+ITERATIONS=$4
 
 array=( $@ )
 len=${#array[@]}
@@ -39,7 +40,7 @@ case ${DATASET} in
   mappy)
     TRAIN_IMDB="mappy_train"
     TEST_IMDB="mappy_test"
-    ITERS=10
+    ITERS=${ITERATIONS}
     ANCHORS="[8,16,32]"
     RATIOS="[0.5,1,2]"
     ;;
