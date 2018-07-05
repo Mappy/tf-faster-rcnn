@@ -1,68 +1,73 @@
-## Mappy blur_ia fork of **tf-faster-rcnn** project using for Panoramics tooling.
-
 # tf-faster-rcnn
-A Tensorflow implementation of faster RCNN detection framework by Xinlei Chen (xinleic@cs.cmu.edu). This repository is based on the python Caffe implementation of faster RCNN available [here](https://github.com/rbgirshick/py-faster-rcnn).
+A Tensorflow implementation of faster RCNN detection framework by Xinlei Chen (xinleic@cs.cmu.edu). This repository is based on the python Caffe implementation of faster RCNN available [here](https://github.com/endernewton/tf-faster-rcnn).
 
-**Note**: Several minor modifications are made when reimplementing the framework, which give potential improvements. For details about the modifications and ablative analysis, please refer to the technical report [An Implementation of Faster RCNN with Study for Region Sampling](https://arxiv.org/pdf/1702.02138.pdf). If you are seeking to reproduce the results in the original paper, please use the [official code](https://github.com/ShaoqingRen/faster_rcnn) or maybe the [semi-official code](https://github.com/rbgirshick/py-faster-rcnn). For details about the faster RCNN architecture please refer to the paper [Faster R-CNN: Towards Real-Time Object Detection with Region Proposal Networks](http://arxiv.org/pdf/1506.01497.pdf).
+## Prerequisites
+  - Docker installed on the machine
+  - GPU with a RAM > 6Gb
 
-### Detection Performance
-The current code supports **VGG16**, **Resnet V1** and **Mobilenet V1** models. We mainly tested it on plain VGG16 and Resnet101 (thank you @philokey!) architecture. As the baseline, we report numbers using a single model on a single convolution layer, so no multi-scale, no multi-stage bounding box regression, no skip-connection, no extra input is used. The only data augmentation technique is left-right flipping during training following the original Faster RCNN. All models are released.
+## Nividia Installation
 
-With VGG16 (``conv5_3``):
-  - Train on VOC 2007 trainval and test on VOC 2007 test, **70.8**.
-  - Train on VOC 2007+2012 trainval and test on VOC 2007 test ([R-FCN](https://github.com/daijifeng001/R-FCN) schedule), **75.7**.
-  - Train on COCO 2014 [trainval35k](https://github.com/rbgirshick/py-faster-rcnn/tree/master/models) and test on [minival](https://github.com/rbgirshick/py-faster-rcnn/tree/master/models) (*Iterations*: 900k/1190k), **30.2**.
+##### Nvidia drivers
+- Install requirements: 
+```sudo apt-get install build-essential linux-headers-$(uname -r)```
+- Download CUDA from [NVIDIA website](https://developer.nvidia.com/cuda-downloads).
+- Install
 
-With Resnet101 (last ``conv4``):
-  - Train on VOC 2007 trainval and test on VOC 2007 test, **75.7**.
-  - Train on VOC 2007+2012 trainval and test on VOC 2007 test (R-FCN schedule), **79.8**.
-  - Train on COCO 2014 trainval35k and test on minival (900k/1190k), **35.4**.
+```
+sudo dpkg -i FILE.deb (ex. : cuda-repo-ubuntu1604_8.0.61-1_amd64.deb)
+sudo apt-get update
+sudo apt-get install cuda nvidia-cuda-toolkit
+```
 
-More Results:
-  - Train Mobilenet (1.0, 224) on COCO 2014 trainval35k and test on minival (900k/1190k), **21.8**.
-  - Train Resnet50 on COCO 2014 trainval35k and test on minival (900k/1190k), **32.4**.
-  - Train Resnet152 on COCO 2014 trainval35k and test on minival (900k/1190k), **36.1**.
+- Download CuDNN from [NVIDIA website](https://developer.nvidia.com/cudnn) (ex.: Download cuDNN v6.0 (April 27, 2017), for CUDA 8.0)
+- Extract and install files
+```bash
+cp include/* /usr/local/cuda-8.0/include/
+cp lib64/* /usr/local/cuda-8.0/lib64/
+```
 
-Approximate *baseline* [setup](https://github.com/endernewton/tf-faster-rcnn/blob/master/experiments/cfgs/res101-lg.yml) from [FPN](https://arxiv.org/abs/1612.03144) (this repository does not contain training code for FPN yet):
-  - Train Resnet50 on COCO 2014 trainval35k and test on minival (900k/1190k), **34.2**.
-  - Train Resnet101 on COCO 2014 trainval35k and test on minival (900k/1190k), **37.4**.
-  - Train Resnet152 on COCO 2014 trainval35k and test on minival (900k/1190k), **38.2**.
+- Restart computer
+- Verify installation 
 
-**Note**:
-  - Due to the randomness in GPU training with Tensorflow especially for VOC, the best numbers are reported (with 2-3 attempts) here. According to my experience, for COCO you can almost always get a very close number (within ~0.2%) despite the randomness.
-  - The numbers are obtained with the **default** testing scheme which selects region proposals using non-maximal suppression (TEST.MODE nms), the alternative testing scheme (TEST.MODE top) will likely result in slightly better performance (see [report](https://arxiv.org/pdf/1702.02138.pdf), for COCO it boosts 0.X AP).
-  - Since we keep the small proposals (\< 16 pixels width/height), our performance is especially good for small objects.
-  - We do not set a threshold (instead of 0.05) for a detection to be included in the final result, which increases recall.
-  - Weight decay is set to 1e-4.
-  - For other minor modifications, please check the [report](https://arxiv.org/pdf/1702.02138.pdf). Notable ones include using ``crop_and_resize``, and excluding ground truth boxes in RoIs during training.
-  - For COCO, we find the performance improving with more iterations, and potentially better performance can be achieved with even more iterations.
-  - For Resnets, we fix the first block (total 4) when fine-tuning the network, and only use ``crop_and_resize`` to resize the RoIs (7x7) without max-pool (which I find useless especially for COCO). The final feature maps are average-pooled for classification and regression. All batch normalization parameters are fixed. Learning rate for biases is not doubled.
-  - For Mobilenets, we fix the first five layers when fine-tuning the network. All batch normalization parameters are fixed. Weight decay for Mobilenet layers is set to 4e-5.
-  - For approximate [FPN](https://arxiv.org/abs/1612.03144) baseline setup we simply resize the image with 800 pixels, add 32^2 anchors, and take 1000 proposals during testing.
-  - Check out [here](http://ladoga.graphics.cs.cmu.edu/xinleic/tf-faster-rcnn/)/[here](http://xinlei.sp.cs.cmu.edu/xinleic/tf-faster-rcnn/)/[here](https://drive.google.com/open?id=0B1_fAEgxdnvJSmF3YUlZcHFqWTQ) for the latest models, including longer COCO VGG16 models and Resnet ones.
-  
-![](data/imgs/gt.png)      |  ![](data/imgs/pred.png)
-:-------------------------:|:-------------------------:
-Displayed Ground Truth on Tensorboard |  Displayed Predictions on Tensorboard
+``` nvidia-smi ```
 
-### Additional features
-Additional features not mentioned in the [report](https://arxiv.org/pdf/1702.02138.pdf) are added to make research life easier:
-  - **Support for train-and-validation**. During training, the validation data will also be tested from time to time to monitor the process and check potential overfitting. Ideally training and validation should be separate, where the model is loaded every time to test on validation. However I have implemented it in a joint way to save time and GPU memory. Though in the default setup the testing data is used for validation, no special attempts is made to overfit on testing set.
-  - **Support for resuming training**. I tried to store as much information as possible when snapshoting, with the purpose to resume training from the latest snapshot properly. The meta information includes current image index, permutation of images, and random state of numpy. However, when you resume training the random seed for tensorflow will be reset (not sure how to save the random state of tensorflow now), so it will result in a difference. **Note** that, the current implementation still cannot force the model to behave deterministically even with the random seeds set. Suggestion/solution is welcome and much appreciated.
-  - **Support for visualization**. The current implementation will summarize ground truth boxes, statistics of losses, activations and variables during training, and dump it to a separate folder for tensorboard visualization. The computing graph is also saved for debugging.
+Fore more info check the following links :
+- Nvidia [pdf guide](http://developer.download.nvidia.com/compute/cuda/7.5/Prod/docs/sidebar/CUDA_Installation_Guide_Linux.pdf)
+- Nvidia [CUDA Doc](http://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#ubuntu-installation)
+- Nvidia [CUDA Doc](http://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#ubuntu-installation)
 
-### Prerequisites
-  - A basic Tensorflow installation. The code follows **r1.2** format. If you are using r1.0, please check out the r1.0 branch to fix the slim Resnet block issue. If you are using an older version (r0.1-r0.12), please check out the r0.12 branch. While it is not required, for experimenting the original RoI pooling (which requires modification of the C++ code in tensorflow), you can check out my tensorflow [fork](https://github.com/endernewton/tensorflow) and look for ``tf.image.roi_pooling``.
-  - Python packages you might not have: `cython`, `opencv-python`, `easydict` (similar to [py-faster-rcnn](https://github.com/rbgirshick/py-faster-rcnn)). For `easydict` make sure you have the right version. I use 1.6.
-  - Docker users: Since the recent upgrade, the docker image on docker hub (https://hub.docker.com/r/mbuckler/tf-faster-rcnn-deps/) is no longer valid. However, you can still build your own image by using dockerfile located at `docker` folder (cuda 8 version, as it is required by Tensorflow r1.0.) And make sure following Tensorflow installation to install and use nvidia-docker[https://github.com/NVIDIA/nvidia-docker]. Last, after launching the container, you have to build the Cython modules within the running container. 
+##### Docker-ce:
+ - [Docker-ce](https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/)
+ - Ajout de l'utilisateur blur dans le groupe docker (sudo usermod -aG docker blur)
 
-### Installation
-1. Clone the repository
-  ```Shell
-  git clone https://github.com/endernewton/tf-faster-rcnn.git
-  ```
+##### Nvidia Docker:
+```bash
+wget -P /tmp https://github.com/NVIDIA/nvidia-docker/releases/download/v1.0.1/nvidia-docker_1.0.1-1_amd64.deb
+sudo dpkg -i /tmp/nvidia-docker*.deb && rm /tmp/nvidia-docker*.deb
+```
 
-2. Update your -arch in setup script to match your GPU
+Test nvidia-smi : ```nvidia-docker run --rm nvidia/cuda nvidia-smi```
+
+##### Using Dockerfile
+
+Clone this repo and execute in the root of the project (i.e. tf-faster-rcnn directory) : 
+
+``` nvidia-docker build --force-rm -t faster-rcnn-train .```
+
+## Project Installation
+
+1. Create the working directory
+```
+mkdir <WORKING_DIR>
+cd $WORKING_DIR
+```
+2. Clone Mappy Blur_ia project repository
+
+```
+git clone git@github.com:Mappy/tf-faster-rcnn.git
+```
+
+3. Update your -arch in setup script to match your GPU
   ```Shell
   cd tf-faster-rcnn/lib
   # Change the GPU architecture (-arch) if necessary
@@ -80,56 +85,141 @@ Additional features not mentioned in the [report](https://arxiv.org/pdf/1702.021
   **Note**: You are welcome to contribute the settings on your end if you have made the code work properly on other GPUs. Also even if you are only using CPU tensorflow, GPU based code (for NMS) will be used by default, so please set **USE_GPU_NMS False** to get the correct output.
 
 
-3. Build the Cython modules
-  ```Shell
-  make clean
-  make
+4. Build the docker image
+  ```
+  cd tf-faster-rcnn
+  nvidia-docker build --force-rm -t faster-rcnn-train .
   cd ..
   ```
 
-4. Install the [Python COCO API](https://github.com/pdollar/coco). The code requires the API to access COCO dataset.
-  ```Shell
-  cd data
-  git clone https://github.com/pdollar/coco.git
-  cd coco/PythonAPI
-  make
-  cd ../../..
-  ```
+### Setup database
+Create the **database** directory to stock the traning and testing data 
 
-### Setup data
-Please follow the instructions of py-faster-rcnn [here](https://github.com/rbgirshick/py-faster-rcnn#beyond-the-demo-installation-for-training-and-testing-models) to setup VOC and COCO datasets (Part of COCO is done). The steps involve downloading data and optionally creating soft links in the ``data`` folder. Since faster RCNN does not rely on pre-computed proposals, it is safe to ignore the steps that setup proposals.
+```
+cd $WORKING_DIR
+mkdir database
+cd database
+```
 
-If you find it useful, the ``data/cache`` folder created on my side is also shared [here](http://ladoga.graphics.cs.cmu.edu/xinleic/tf-faster-rcnn/cache.tgz).
+#####  Installation of the Pascal VOC data for training and testing models
 
-### Demo and Test with pre-trained models
+1. Download the training, validation, test data and VOCdevkit
+
+```
+mkdir VOCdevkit2007
+cd VOCdevkit2007
+wget http://host.robots.ox.ac.uk/pascal/VOC/voc2007/VOCtrainval_06-Nov-2007.tar
+wget http://host.robots.ox.ac.uk/pascal/VOC/voc2007/VOCtest_06-Nov-2007.tar
+wget http://host.robots.ox.ac.uk/pascal/VOC/voc2007/VOCdevkit_08-Jun-2007.tar
+```
+2. Extract all of these tars into the **VOCdevkit2007** directory
+```
+tar xvf VOCtrainval_06-Nov-2007.tar
+tar xvf VOCtest_06-Nov-2007.tar
+tar xvf VOCdevkit_08-Jun-2007.tar
+rm VOCtrainval_06-Nov-2007.tar VOCtest_06-Nov-2007.tar VOCdevkit_08-Jun-2007.tar
+```
+3. It should have this basic structure
+```
+VOCdevkit2007/                           # development kit
+VOCdevkit2007/VOCcode/                   # VOC utility code
+VOCdevkit2007/VOC2007                    # image sets, annotations, etc.
+# ... and several other directories ...
+```
+
+#####  Installation of Mappy data
+
+```
+cd $WORKING_DIR/database
+mkdir mappy
+cd mappy
+# copy mappy annoted data and the panoramic images here
+```
+
+### Setup pre-trained model
+Create the **pre_trained_models** directory to stock the trained models 
+
+```
+cd $WORKING_DIR
+mkdir pre_trained_models
+cd pre_trained_models
+```
+
+##### ImageNet pre-trained models and weights
+The current code support VGG16 and Resnet V1 models. Pre-trained models are provided by slim, you can get the pre-trained models here and set them in the data/imagenet_weights folder. For example for VGG16 model, you can set up like:
+
+```
+mkdir imagenet_weights
+cd imagenet_weights
+wget -v http://download.tensorflow.org/models/vgg_16_2016_08_28.tar.gz
+tar -xzvf vgg_16_2016_08_28.tar.gz
+mv vgg_16.ckpt vgg16.ckpt
+cd ../..
+```
+
+For Resnet101, you can set up like:
+
+```
+cd pre_trained_models/imagenet_weights
+wget -v http://download.tensorflow.org/models/resnet_v1_101_2016_08_28.tar.gz
+tar -xzvf resnet_v1_101_2016_08_28.tar.gz
+mv resnet_v1_101.ckpt res101.ckpt
+cd ../..
+```
+
+##### Pascal VOC pre-trained models
+
+```
+cd $WORKING_DIR/pre_trained_models
+mkdir voc
+cd voc
+```
+
 1. Download pre-trained model
   ```Shell
   # Resnet101 for voc pre-trained on 07+12 set
   ./data/scripts/fetch_faster_rcnn_models.sh
   ```
   **Note**: if you cannot download the models through the link, or you want to try more models, you can check out the following solutions and optionally update the downloading script:
-  - Another server [here](http://xinlei.sp.cs.cmu.edu/xinleic/tf-faster-rcnn/).
   - Google drive [here](https://drive.google.com/open?id=0B1_fAEgxdnvJSmF3YUlZcHFqWTQ).
 
-2. Create a folder and a soft link to use the pre-trained model
+2. Create a folder to use the VOC pre-trained model
   ```Shell
   NET=res101
   TRAIN_IMDB=voc_2007_trainval+voc_2012_trainval
-  mkdir -p output/${NET}/${TRAIN_IMDB}
-  cd output/${NET}/${TRAIN_IMDB}
-  ln -s ../../../data/voc_2007_trainval+voc_2012_trainval ./default
-  cd ../../..
+  mkdir -p $WORKING_DIR/pre_trained_models/voc/${NET}/${TRAIN_IMDB}
+  cd $WORKING_DIR/pre_trained_models/voc/${NET}/${TRAIN_IMDB}
+  mv ../../../data/voc_2007_trainval+voc_2012_trainval ./default
   ```
 
-3. Demo for testing on custom images
-  ```Shell
-  # at repository root
-  GPU_ID=0
-  CUDA_VISIBLE_DEVICES=${GPU_ID} ./tools/demo.py
-  ```
-  **Note**: Resnet101 testing probably requires several gigabytes of memory, so if you encounter memory capacity issues, please install it with CPU support only. Refer to [Issue 25](https://github.com/endernewton/tf-faster-rcnn/issues/25).
+### Setup output directory
+The output directory will be mounted with the output directory of the docker to persist the trained models
+```
+cd $WORKING_DIR
+mkdir output
+```
 
-4. Test with pre-trained Resnet101 models
+## Working with the project
+
+### Test VOC pre trained model
+1. Launch the docker with the mounted directories
+```
+cd $WORKING_DIR/tf-faster-rcnn
+nvidia-docker run --rm -it \
+ -v /home/blur/dev/ia/tf-faster-rcnn/data:/ai/tf-faster-rcnn/data \
+ -v /home/blur/dev/ia/database/VOCdevkit2007:/ai/tf-faster-rcnn/data/VOCdevkit2007 \
+ -v /home/blur/dev/ia/pre_trained_models/voc:/ai/tf-faster-rcnn/output \
+ --name tf_faster_rcnn_name tf_faster_rcnn
+```
+
+2. Demo for testing on custom images
+```
+GPU_ID=0
+CUDA_VISIBLE_DEVICES=${GPU_ID} ./tools/demo.py
+```
+**Note**: Resnet101 testing probably requires several gigabytes of memory, so if you encounter memory capacity issues, please install it with CPU support only. Refer to [Issue 25](https://github.com/endernewton/tf-faster-rcnn/issues/25).
+
+3. Test with pre-trained Resnet101 models
   ```Shell
   GPU_ID=0
   ./experiments/scripts/test_faster_rcnn.sh $GPU_ID pascal_voc_0712 res101
@@ -137,24 +227,18 @@ If you find it useful, the ``data/cache`` folder created on my side is also shar
   **Note**: If you cannot get the reported numbers (79.8 on my side), then probably the NMS function is compiled improperly, refer to [Issue 5](https://github.com/endernewton/tf-faster-rcnn/issues/5).
 
 ### Train your own model
-1. Download pre-trained models and weights. The current code support VGG16 and Resnet V1 models. Pre-trained models are provided by slim, you can get the pre-trained models [here](https://github.com/tensorflow/models/tree/master/research/slim#pre-trained-models) and set them in the ``data/imagenet_weights`` folder. For example for VGG16 model, you can set up like:
-   ```Shell
-   mkdir -p data/imagenet_weights
-   cd data/imagenet_weights
-   wget -v http://download.tensorflow.org/models/vgg_16_2016_08_28.tar.gz
-   tar -xzvf vgg_16_2016_08_28.tar.gz
-   mv vgg_16.ckpt vgg16.ckpt
-   cd ../..
-   ```
-   For Resnet101, you can set up like:
-   ```Shell
-   mkdir -p data/imagenet_weights
-   cd data/imagenet_weights
-   wget -v http://download.tensorflow.org/models/resnet_v1_101_2016_08_28.tar.gz
-   tar -xzvf resnet_v1_101_2016_08_28.tar.gz
-   mv resnet_v1_101.ckpt res101.ckpt
-   cd ../..
-   ```
+
+##### Training and the VOC with pre-trained imagenets model
+1. Launch the docker with the mounted directories
+```
+cd $WORKING_DIR/tf-faster-rcnn
+nvidia-docker run --rm -it \
+ -v /home/blur/dev/ia/tf-faster-rcnn/data:/ai/tf-faster-rcnn/data \
+ -v /home/blur/dev/ia/pre_trained_models/imagenet_weights:/ai/tf-faster-rcnn/data/imagenet_weights \
+ -v /home/blur/dev/ia/database/VOCdevkit2007:/ai/tf-faster-rcnn/data/VOCdevkit2007 \
+ -v /home/blur/dev/ia/output:/ai/tf-faster-rcnn/output \
+ --name tf_faster_rcnn_name tf_faster_rcnn
+```
 
 2. Train (and test, evaluation)
   ```Shell
@@ -163,16 +247,9 @@ If you find it useful, the ``data/cache`` folder created on my side is also shar
   # NET in {vgg16, res50, res101, res152} is the network arch to use
   # DATASET {pascal_voc, pascal_voc_0712, coco} is defined in train_faster_rcnn.sh
   # Examples:
-  ./experiments/scripts/train_faster_rcnn.sh 0 pascal_voc vgg16
-  ./experiments/scripts/train_faster_rcnn.sh 1 coco res101
+  ./experiments/scripts/train_faster_rcnn.sh 0 pascal_voc res101
   ```
   **Note**: Please double check you have deleted soft link to the pre-trained models before training. If you find NaNs during training, please refer to [Issue 86](https://github.com/endernewton/tf-faster-rcnn/issues/86). Also if you want to have multi-gpu support, check out [Issue 121](https://github.com/endernewton/tf-faster-rcnn/issues/121).
-
-3. Visualization with Tensorboard
-  ```Shell
-  tensorboard --logdir=tensorboard/vgg16/voc_2007_trainval/ --port=7001 &
-  tensorboard --logdir=tensorboard/vgg16/coco_2014_train+coco_2014_valminusminival/ --port=7002 &
-  ```
 
 4. Test and evaluate
   ```Shell
@@ -181,11 +258,41 @@ If you find it useful, the ``data/cache`` folder created on my side is also shar
   # NET in {vgg16, res50, res101, res152} is the network arch to use
   # DATASET {pascal_voc, pascal_voc_0712, coco} is defined in test_faster_rcnn.sh
   # Examples:
-  ./experiments/scripts/test_faster_rcnn.sh 0 pascal_voc vgg16
-  ./experiments/scripts/test_faster_rcnn.sh 1 coco res101
+  ./experiments/scripts/test_faster_rcnn.sh 0 pascal_voc res101
   ```
 
-5. You can use ``tools/reval.sh`` for re-evaluation
+##### Training and test the Mappy with pre-trained imagenets model
+1. Launch the docker with the mounted directories
+```
+cd $WORKING_DIR/tf-faster-rcnn
+nvidia-docker run --rm -it \
+ -v /home/blur/dev/ia/tf-faster-rcnn/data:/ai/tf-faster-rcnn/data \
+ -v /home/blur/dev/ia/pre_trained_models/imagenet_weights:/ai/tf-faster-rcnn/data/imagenet_weights \
+ -v /home/blur/dev/ia/database/mappy:/ai/tf-faster-rcnn/data/mappy \
+ -v /home/blur/dev/ia/output:/ai/tf-faster-rcnn/output \
+ --name tf_faster_rcnn_name tf_faster_rcnn
+```
+
+2. Train (and test, evaluation)
+  ```Shell
+  ./experiments/scripts/train_faster_rcnn.sh [GPU_ID] [DATASET] [NET] [ITERATIONS]
+  # GPU_ID is the GPU you want to test on
+  # NET in {vgg16, res50, res101, res152} is the network arch to use
+  # DATASET {pascal_voc, pascal_voc_0712, coco} is defined in train_faster_rcnn.sh
+  # Examples:
+  ./experiments/scripts/train_faster_rcnn.sh 0 mappy res101 110000
+  ```
+  **Note**: Please double check you have deleted soft link to the pre-trained models before training. If you find NaNs during training, please refer to [Issue 86](https://github.com/endernewton/tf-faster-rcnn/issues/86). Also if you want to have multi-gpu support, check out [Issue 121](https://github.com/endernewton/tf-faster-rcnn/issues/121).
+
+4. Test and evaluate
+  ```Shell
+  ./experiments/scripts/test_faster_rcnn.sh [GPU_ID] [DATASET] [NET]
+  # GPU_ID is the GPU you want to test on
+  # NET in {vgg16, res50, res101, res152} is the network arch to use
+  # DATASET {pascal_voc, pascal_voc_0712, coco} is defined in test_faster_rcnn.sh
+  # Examples:
+  ./experiments/scripts/test_faster_rcnn.sh 0 mappy res101 110000
+  ```
 
 
 By default, trained networks are saved under:
