@@ -356,7 +356,7 @@ class mappy(imdb):
             for cls in self._classes:
                 if cls == '__background__':
                     continue
-                filename = self._get_voc_results_file_template().format(cls)
+                filename = self._get_mappy_results_file_template().format(cls)
                 os.remove(filename)
 
     def evaluate_detections_with_matlab(self, all_boxes, output_dir):
