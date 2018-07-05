@@ -52,7 +52,7 @@ Test nvidia-smi : ```nvidia-docker run --rm nvidia/cuda nvidia-smi```
 
 Clone this repo and execute in the root of the project (i.e. tf-faster-rcnn directory) : 
 
-``` nvidia-docker build --force-rm -t faster-rcnn-train .```
+``` nvidia-docker build --force-rm -t tf_faster_rcnn .```
 
 ## Project Installation
 
@@ -88,7 +88,7 @@ git clone git@github.com:Mappy/tf-faster-rcnn.git
 4. Build the docker image
   ```
   cd tf-faster-rcnn
-  nvidia-docker build --force-rm -t faster-rcnn-train .
+  nvidia-docker build --force-rm -t tf_faster_rcnn .
   cd ..
   ```
 

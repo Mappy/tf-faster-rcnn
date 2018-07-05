@@ -5,6 +5,7 @@ import subprocess
 import numpy as np
 import scipy.io as sio
 import scipy.sparse
+import pickle
 from datasets.imdb import imdb
 import uuid
 from .mappy_eval import mappy_eval
