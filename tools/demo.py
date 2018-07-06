@@ -78,11 +78,10 @@ def vis_detections(im, class_name, dets, thresh=0.5):
 
     plt.savefig('output/savefig_demo_{}_.png'.format(class_name))
 
-def demo(sess, net, image_name):
+def demo(sess, net, im_file):
     """Detect object classes in an image using pre-computed object proposals."""
 
     # Load the demo image
-    im_file = os.path.join(cfg.DATA_DIR, 'demo', image_name)
     im = cv2.imread(im_file)
 
     # Detect all object classes and regress object bounds
@@ -112,6 +111,8 @@ def parse_args():
                         choices=NETS.keys(), default='res101')
     parser.add_argument('--dataset', dest='dataset', help='Trained dataset [pascal_voc pascal_voc_0712]',
                         choices=DATASETS.keys(), default='pascal_voc_0712')
+    parser.add_argument('--dir', dest='image_dir', help='Directory of the demo images',
+                        default='demo', type=str)
     args = parser.parse_args()
 
     return args
@@ -125,7 +126,6 @@ if __name__ == '__main__':
     dataset = args.dataset
     tfmodel = os.path.join('output', demonet, DATASETS[dataset][0], 'default',
                               NETS[demonet][0])
-
 
     if not os.path.isfile(tfmodel + '.meta'):
         raise IOError(('{:s} not found.\nDid you download the proper networks from '
@@ -155,7 +155,8 @@ if __name__ == '__main__':
                 '001763.jpg', '004545.jpg']
     for im_name in im_names:
         print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
-        print('Demo for data/demo/{}'.format(im_name))
-        demo(sess, net, im_name)
+        print('Demo for data/{}/{}'.format(args.image_dir, im_name))
+        im_file = os.path.join(cfg.DATA_DIR, args.image_dir, im_name)
+        demo(sess, net, im_file)
 
     plt.show()
