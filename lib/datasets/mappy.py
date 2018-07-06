@@ -41,7 +41,7 @@ class mappy(imdb):
         self._comp_id = 'comp4'
 
         # Specific config options
-        self.config = {'cleanup': True, 'use_salt': True, 'top_k': 2000, 'use_diff': False}
+        self.config = {'cleanup': True, 'use_salt': True, 'top_k': 2000, 'use_diff': True}
 
         assert os.path.exists(self._devkit_path), 'Devkit path does not exist: {}'.format(self._devkit_path)
         assert os.path.exists(self._data_path), 'Path does not exist: {}'.format(self._data_path)
