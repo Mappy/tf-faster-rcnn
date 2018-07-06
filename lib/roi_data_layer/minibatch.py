@@ -58,7 +58,6 @@ def _get_image_blob(roidb, scale_inds):
   num_images = len(roidb)
   processed_ims = []
   im_scales = []
-  print ('minibatch._get_image_blob scale_inds {} num_images {}'.format(scale_inds, num_images))
   for i in range(num_images):
     im = cv2.imread(roidb[i]['image'])
     if roidb[i]['flipped']:
@@ -71,7 +70,5 @@ def _get_image_blob(roidb, scale_inds):
 
   # Create a blob to hold the input images
   blob = im_list_to_blob(processed_ims)
-
-  print ('minibatch._get_image_blob im_scales {} '.format(im_scales))
 
   return blob, im_scales
