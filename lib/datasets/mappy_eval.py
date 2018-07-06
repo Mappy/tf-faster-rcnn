@@ -41,7 +41,7 @@ def parse_rec(filename):
       obj_struct['name'] = 'car'
 
     obj_struct['bbox'] = [x1, y1, x2, y2]
-    obj_struct['difficult'] = 0
+    obj_struct['difficult'] = 1
 
     objects.append(obj_struct)
 
@@ -119,14 +119,10 @@ def mappy_eval(detpath,
     os.mkdir(cachedir)
   cachefile = os.path.join(cachedir, '%s_annots.pkl' % imagesetfile)
 
-  print ('mappy_eval cachefile {} imagesetfile {}'.format(cachefile, imagesetfile))
-
   # read list of images
   with open(imagesetfile, 'r') as f:
     lines = f.readlines()
   imagenames = [x.strip() for x in lines]
-
-  print('mappy_eval imagenames {}'.format(imagenames))
 
   if not os.path.isfile(cachefile):
     # load annotations
@@ -151,10 +147,8 @@ def mappy_eval(detpath,
   # extract gt objects for this class
   class_recs = {}
   npos = 0
-  print('mappy_eval 2 recs'.format(recs))
   for imagename in imagenames:
     R = [obj for obj in recs[imagename] if obj['name'] == classname]
-    print('mappy_eval R {}'.format(R))
     bbox = np.array([x['bbox'] for x in R])
     if use_diff:
       difficult = np.array([False for x in R]).astype(np.bool)
@@ -165,9 +159,6 @@ def mappy_eval(detpath,
     class_recs[imagename] = {'bbox': bbox,
                              'difficult': difficult,
                              'det': det}
-
-    print('mappy_eval class_recs[imagename] {}'.format(class_recs[imagename]))
-    print('mappy_eval npos {}'.format(npos))
 
   # read dets
   detfile = detpath.format(classname)

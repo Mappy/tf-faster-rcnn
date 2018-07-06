@@ -318,7 +318,7 @@ class mappy(imdb):
         cachedir = os.path.join(self._devkit_path, 'annotations_cache')
         aps = []
         # The PASCAL VOC metric changed in 2010
-        use_07_metric = False #if int(self._year) < 2010 else False
+        use_07_metric = True #if int(self._year) < 2010 else False
         print('VOC07 metric? ' + ('Yes' if use_07_metric else 'No'))
         if not os.path.isdir(output_dir):
             os.mkdir(output_dir)
@@ -329,7 +329,8 @@ class mappy(imdb):
             rec, prec, ap = mappy_eval(
                 filename, annopath, imagesetfile, cls, cachedir, ovthresh=0.5,
                 use_07_metric=use_07_metric, use_diff=self.config['use_diff'])
-            aps += [ap]
+            if ap > 0:
+                aps += [ap]
             print(('AP for {} = {:.4f}'.format(cls, ap)))
             with open(os.path.join(output_dir, cls + '_pr.pkl'), 'wb') as f:
                 pickle.dump({'rec': rec, 'prec': prec, 'ap': ap}, f)
@@ -337,7 +338,7 @@ class mappy(imdb):
         print('~~~~~~~~')
         print('Results:')
         for ap in aps:
-            print(('{:.3f}'.format(ap)))
+            print(('mean APs -> {:.3f}'.format(ap)))
         print(('{:.3f}'.format(np.mean(aps))))
         print('~~~~~~~~')
         print('')
