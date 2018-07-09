@@ -41,12 +41,14 @@ CLASSES = ('__background__',
            'motorbike', 'person', 'pottedplant',
            'sheep', 'sofa', 'train', 'tvmonitor')
 
-NETS = {'vgg16': ('vgg16_faster_rcnn_iter_70000.ckpt',),'res101': ('res101_faster_rcnn_iter_110000.ckpt',)}
-DATASETS= {'pascal_voc': ('voc_2007_trainval',),'pascal_voc_0712': ('voc_2007_trainval+voc_2012_trainval',)}
+NETS = {'vgg16': ('vgg16_faster_rcnn_iter_{}.ckpt',),'res101': ('res101_faster_rcnn_iter_{}.ckpt',)}
+DATASETS= {'pascal_voc': ('voc_2007_trainval',),'pascal_voc_0712': ('voc_2007_trainval+voc_2012_trainval',), 'mappy': ('mappy_train',)}
 
 def vis_detections(im, class_name, dets, thresh=0.5):
     """Draw detected bounding boxes."""
+    thresh = 0.4
     inds = np.where(dets[:, -1] >= thresh)[0]
+    print ('demo vis_detections class {} inds len {} => {}'.format(class_name, len(inds), inds))
     if len(inds) == 0:
         return
 
@@ -113,6 +115,8 @@ def parse_args():
                         choices=DATASETS.keys(), default='pascal_voc_0712')
     parser.add_argument('--image', dest='demo_image', help='Path name of the demo image',
                         default=None, type=str)
+    parser.add_argument('--iters', dest='iterations', help='trained model with iteration',
+                        default=110000, type=int)
     args = parser.parse_args()
 
     return args
@@ -125,7 +129,7 @@ if __name__ == '__main__':
     demonet = args.demo_net
     dataset = args.dataset
     tfmodel = os.path.join('output', demonet, DATASETS[dataset][0], 'default',
-                              NETS[demonet][0])
+                              NETS[demonet][0].format(args.iterations))
 
     if not os.path.isfile(tfmodel + '.meta'):
         raise IOError(('{:s} not found.\nDid you download the proper networks from '
