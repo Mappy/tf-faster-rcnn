@@ -111,8 +111,8 @@ def parse_args():
                         choices=NETS.keys(), default='res101')
     parser.add_argument('--dataset', dest='dataset', help='Trained dataset [pascal_voc pascal_voc_0712]',
                         choices=DATASETS.keys(), default='pascal_voc_0712')
-    parser.add_argument('--dir', dest='image_dir', help='Directory of the demo images',
-                        default='demo', type=str)
+    parser.add_argument('--image', dest='demo_image', help='Path name of the demo image',
+                        default=None, type=str)
     args = parser.parse_args()
 
     return args
@@ -151,12 +151,16 @@ if __name__ == '__main__':
 
     print('Loaded network {:s}'.format(tfmodel))
 
-    im_names = ['000456.jpg', '000542.jpg', '001150.jpg',
-                '001763.jpg', '004545.jpg']
-    for im_name in im_names:
-        print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
-        print('Demo for data/{}/{}'.format(args.image_dir, im_name))
-        im_file = os.path.join(cfg.DATA_DIR, args.image_dir, im_name)
+    if args.demo_image is None:
+        im_names = ['000456.jpg', '000542.jpg', '001150.jpg',
+                    '001763.jpg', '004545.jpg']
+        for im_name in im_names:
+            print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
+            print('Demo for data/demo/{}'.format(im_name))
+            im_file = os.path.join(cfg.DATA_DIR, 'demo', im_name)
+            demo(sess, net, im_file)
+    else:
+        im_file = os.path.join(cfg.DATA_DIR, args.demo_image)
         demo(sess, net, im_file)
 
     plt.show()
