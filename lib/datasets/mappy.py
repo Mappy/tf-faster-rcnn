@@ -15,7 +15,7 @@ from model.config import cfg
 class mappy(imdb):
     def __init__(self, image_set):
         print("mappy __init__")
-        imdb.__init__(self, image_set)
+        imdb.__init__(self, 'mappy_'+image_set)
         self._image_set = image_set
         self._devkit_path = self._get_default_path()
         print("mappy __init__ devkit_path {}".format(self._devkit_path))
