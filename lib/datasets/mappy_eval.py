@@ -208,6 +208,7 @@ def mappy_eval(detpath,
         ovmax = np.max(overlaps)
         jmax = np.argmax(overlaps)
 
+      print('mappy_eval ovmax {} / ovthresh {}'.format(ovmax, ovthresh))
       if ovmax > ovthresh:
         if not R['difficult'][jmax]:
           if not R['det'][jmax]:
@@ -218,6 +219,8 @@ def mappy_eval(detpath,
       else:
         fp[d] = 1.
 
+      print('mappy_eval tp {} / fp {}'.format(tp, fp))
+
   # compute precision recall
   fp = np.cumsum(fp)
   tp = np.cumsum(tp)
@@ -226,5 +229,7 @@ def mappy_eval(detpath,
   # ground truth
   prec = tp / np.maximum(tp + fp, np.finfo(np.float64).eps)
   ap = voc_ap(rec, prec, use_07_metric)
+
+  print('mappy_eval tp {} / fp {} rec {} prec {} ap {}'.format(tp, fp, rec, prec, ap))
 
   return rec, prec, ap
