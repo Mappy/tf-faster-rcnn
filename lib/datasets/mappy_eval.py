@@ -208,8 +208,8 @@ def mappy_eval(detpath,
         ovmax = np.max(overlaps)
         jmax = np.argmax(overlaps)
 
-      if classname == 'car' or classname == 'person':
-        print('mappy_eval ovmax {} / ovthresh {}'.format(ovmax, ovthresh))
+      #if classname == 'car' or classname == 'person':
+        #print('mappy_eval ovmax {} / ovthresh {}'.format(ovmax, ovthresh))
 
       if ovmax > ovthresh:
         if not R['difficult'][jmax]:
@@ -221,8 +221,8 @@ def mappy_eval(detpath,
       else:
         fp[d] = 1.
 
-      if classname == 'car' or classname == 'person':
-        print('mappy_eval tp {} / fp {}'.format(np.cumsum(fp), np.cumsum(tp)))
+      #if classname == 'car' or classname == 'person':
+        #print('mappy_eval tp {} / fp {}'.format(np.cumsum(fp), np.cumsum(tp)))
 
   # compute precision recall
   fp = np.cumsum(fp)
@@ -234,6 +234,10 @@ def mappy_eval(detpath,
   ap = voc_ap(rec, prec, use_07_metric)
 
   if classname == 'car' or classname == 'person':
+    print('mappy_eval detpath {} annopath {} imagesetfile {} imagesetfile {} classname {} '.format(detpath,
+             annopath,
+             imagesetfile,
+             classname))
     print('mappy_eval classname {} tp {} / fp {} rec {} prec {} ap {} npos {}'.format(classname, tp, fp, rec, prec, ap, npos))
 
   return rec, prec, ap
