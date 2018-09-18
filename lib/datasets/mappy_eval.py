@@ -222,7 +222,7 @@ def mappy_eval(detpath,
         fp[d] = 1.
 
       if classname == 'car' or classname == 'person':
-        print('mappy_eval tp {} / fp {}'.format(tp, fp))
+        print('mappy_eval tp {} / fp {}'.format(np.cumsum(fp), np.cumsum(tp)))
 
   # compute precision recall
   fp = np.cumsum(fp)
@@ -234,6 +234,6 @@ def mappy_eval(detpath,
   ap = voc_ap(rec, prec, use_07_metric)
 
   if classname == 'car' or classname == 'person':
-    print('mappy_eval tp {} / fp {} rec {} prec {} ap {} npos {}'.format(tp, fp, rec, prec, ap, npos))
+    print('mappy_eval classname {} tp {} / fp {} rec {} prec {} ap {} npos {}'.format(classname, tp, fp, rec, prec, ap, npos))
 
   return rec, prec, ap
