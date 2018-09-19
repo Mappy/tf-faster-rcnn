@@ -228,7 +228,7 @@ CUDA_VISIBLE_DEVICES=${GPU_ID} ./tools/demo.py
 
 ### Train your own model
 
-##### Training and the VOC with pre-trained imagenets model
+##### Training and test the VOC with pre-trained imagenets model
 1. Launch the docker with the mounted directories
 ```
 cd $WORKING_DIR/tf-faster-rcnn
@@ -240,7 +240,7 @@ nvidia-docker run --rm -it \
  --name tf_faster_rcnn_name tf_faster_rcnn
 ```
 
-2. Train (and test, evaluation)
+2. Train
   ```Shell
   ./experiments/scripts/train_faster_rcnn.sh [GPU_ID] [DATASET] [NET]
   # GPU_ID is the GPU you want to test on
@@ -273,7 +273,7 @@ nvidia-docker run --rm -it \
  --name tf_faster_rcnn_name tf_faster_rcnn
 ```
 
-2. Train (and test, evaluation)
+2. Train
   ```Shell
   ./experiments/scripts/train_faster_rcnn.sh [GPU_ID] [DATASET] [NET] [ITERATIONS]
   # GPU_ID is the GPU you want to test on

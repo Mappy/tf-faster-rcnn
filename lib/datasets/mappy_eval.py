@@ -229,6 +229,7 @@ def mappy_eval(detpath,
 
       #if classname == 'car' or classname == 'person':
         #print('mappy_eval tp {} / fp {}'.format(tp, fp))
+        #print('mappy_eval tp {} / fp {}'.format(np.cumsum(fp), np.cumsum(tp)))
 
   # compute precision recall
   fp = np.cumsum(fp)
