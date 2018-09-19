@@ -243,7 +243,7 @@ class mappy(imdb):
         # VOCdevkit/results/comp4-44503_det_test_aeroplane.txt
         path = os.path.join(self._devkit_path, 'results', self.name, comp_id + '_')
         for cls_ind, cls in enumerate(self.classes):
-            if cls == '__background__':
+            if cls == '__background__' or (cls!='car' and cls != 'person'):
                 continue
             print 'Writing {} results file'.format(cls)
             filename = path + 'det_' + self._image_set + '_' + cls + '.txt'
@@ -323,7 +323,7 @@ class mappy(imdb):
         if not os.path.isdir(output_dir):
             os.mkdir(output_dir)
         for i, cls in enumerate(self._classes):
-            if cls == '__background__':
+            if cls == '__background__' or (cls != 'car' and cls != 'person'):
                 continue
             filename = self._get_mappy_results_file_template().format(cls)
             rec, prec, ap = mappy_eval(

@@ -114,6 +114,8 @@ def mappy_eval(detpath,
   # assumes imagesetfile is a text file with each line an image name
   # cachedir caches the annotations in a pickle file
 
+  print('mappy_eval classname {}'.format(classname))
+
   # first load gt
   if not os.path.isdir(cachedir):
     os.mkdir(cachedir)
@@ -165,6 +167,8 @@ def mappy_eval(detpath,
   with open(detfile, 'r') as f:
     lines = f.readlines()
 
+  print('mappy_eval detfile {} \n lines {}'.format(detfile, lines))
+
   splitlines = [x.strip().split(' ') for x in lines]
   image_ids = [x[0] for x in splitlines]
   confidence = np.array([float(x[1]) for x in splitlines])
@@ -186,6 +190,7 @@ def mappy_eval(detpath,
       R = class_recs[image_ids[d]]
       bb = BB[d, :].astype(float)
       ovmax = -np.inf
+      jmax = -np.inf
       BBGT = R['bbox'].astype(float)
 
       if BBGT.size > 0:
@@ -208,8 +213,9 @@ def mappy_eval(detpath,
         ovmax = np.max(overlaps)
         jmax = np.argmax(overlaps)
 
-      if classname == 'car' or classname == 'person':
-        print('mappy_eval ovmax {} / ovthresh {}'.format(ovmax, ovthresh))
+      #if classname == 'car' or classname == 'person':
+        #print('mappy_eval ovmax {} / ovthresh {}'.format(ovmax, ovthresh))
+      print('mappy_eval ovmax {} / ovthresh {} jmax {}'.format(ovmax, ovthresh, jmax))
 
       if ovmax > ovthresh:
         if not R['difficult'][jmax]:
@@ -221,8 +227,8 @@ def mappy_eval(detpath,
       else:
         fp[d] = 1.
 
-      if classname == 'car' or classname == 'person':
-        print('mappy_eval tp {} / fp {}'.format(tp, fp))
+      #if classname == 'car' or classname == 'person':
+        #print('mappy_eval tp {} / fp {}'.format(tp, fp))
 
   # compute precision recall
   fp = np.cumsum(fp)
@@ -233,7 +239,8 @@ def mappy_eval(detpath,
   prec = tp / np.maximum(tp + fp, np.finfo(np.float64).eps)
   ap = voc_ap(rec, prec, use_07_metric)
 
-  if classname == 'car' or classname == 'person':
-    print('mappy_eval tp {} / fp {} rec {} prec {} ap {} npos {}'.format(tp, fp, rec, prec, ap, npos))
+  #if classname == 'car' or classname == 'person':
+    #print('mappy_eval detpath {} annopath {} imagesetfile {} classname {} '.format(detpath, annopath,imagesetfile,classname))
+    #print('mappy_eval tp {} / fp {} rec {} prec {} ap {} npos {}'.format(tp, fp, rec, prec, ap, npos))
 
   return rec, prec, ap
