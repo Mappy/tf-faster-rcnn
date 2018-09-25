@@ -50,7 +50,7 @@ class mappy(imdb):
         """
         Return the absolute path to image i in the image sequence.
         """
-        print("image {}".format(self._image_index[i]))
+        print("image {} - {}".format(i, self._image_index[i]))
         return self.image_path_from_index(self._image_index[i])
 
     def image_path_from_index(self, index):

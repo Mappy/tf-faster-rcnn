@@ -79,6 +79,7 @@ class RoIDataLayer(object):
     separate process and made available through self._blob_queue.
     """
     db_inds = self._get_next_minibatch_inds()
+    print("layer _get_next_minibatch db_inds {}".format(db_inds))
     minibatch_db = [self._roidb[i] for i in db_inds]
     return get_minibatch(minibatch_db, self._num_classes)
       
