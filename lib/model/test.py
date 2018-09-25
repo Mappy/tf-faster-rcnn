@@ -48,6 +48,8 @@ def _get_image_blob(im):
     if np.round(im_scale * im_size_max) > cfg.TEST.MAX_SIZE:
       im_scale = float(cfg.TEST.MAX_SIZE) / float(im_size_max)
 
+    print("im_scale {}".format(im_scale))
+
     im = cv2.resize(im_orig, None, None, fx=im_scale, fy=im_scale,
             interpolation=cv2.INTER_LINEAR)
     im_scale_factors.append(im_scale)
@@ -181,9 +183,10 @@ def test_net(sess, net, imdb, weights_filename, max_per_image=100, thresh=0.):
           all_boxes[j][i] = all_boxes[j][i][keep, :]
     _t['misc'].toc()
 
-    print('im_detect: {:d}/{:d} {:.3f}s {:.3f}s' \
+    print("image {}".format(im.shape))
+    print('im_detect: {:d}/{:d} {:.3f}s {:.3f}s -> {}' \
         .format(i + 1, num_images, _t['im_detect'].average_time,
-            _t['misc'].average_time))
+            _t['misc'].average_time, image_scores))
 
   det_file = os.path.join(output_dir, 'detections.pkl')
   with open(det_file, 'wb') as f:

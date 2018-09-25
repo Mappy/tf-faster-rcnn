@@ -66,6 +66,7 @@ def _get_image_blob(roidb, scale_inds):
     im, im_scale = prep_im_for_blob(im, cfg.PIXEL_MEANS, target_size,
                     cfg.TRAIN.MAX_SIZE)
     im_scales.append(im_scale)
+    print("im_scale {}".format(im_scale))
     processed_ims.append(im)
 
   # Create a blob to hold the input images

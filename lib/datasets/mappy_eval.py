@@ -161,6 +161,8 @@ def mappy_eval(detpath,
     class_recs[imagename] = {'bbox': bbox,
                              'difficult': difficult,
                              'det': det}
+    print("bbox {}".format(bbox))
+    print("difficult {}".format(difficult))
 
   # read dets
   detfile = detpath.format(classname)
@@ -174,6 +176,9 @@ def mappy_eval(detpath,
   confidence = np.array([float(x[1]) for x in splitlines])
   BB = np.array([[float(z) for z in x[2:]] for x in splitlines])
 
+  print('mappy_eval confidence {}'.format(confidence))
+
+
   nd = len(image_ids)
   tp = np.zeros(nd)
   fp = np.zeros(nd)
@@ -184,7 +189,8 @@ def mappy_eval(detpath,
     sorted_scores = np.sort(-confidence)
     BB = BB[sorted_ind, :]
     image_ids = [image_ids[x] for x in sorted_ind]
-
+	
+    print('mappy_eval nd {}'.format(nd))
     # go down dets and mark TPs and FPs
     for d in range(nd):
       R = class_recs[image_ids[d]]
@@ -205,9 +211,10 @@ def mappy_eval(detpath,
         inters = iw * ih
 
         # union
-        uni = ((bb[2] - bb[0] + 1.) * (bb[3] - bb[1] + 1.) +
-               (BBGT[:, 2] - BBGT[:, 0] + 1.) *
-               (BBGT[:, 3] - BBGT[:, 1] + 1.) - inters)
+        #uni = ((bb[2] - bb[0] + 1.) * (bb[3] - bb[1] + 1.) +
+        #       (BBGT[:, 2] - BBGT[:, 0] + 1.) *
+        #       (BBGT[:, 3] - BBGT[:, 1] + 1.) - inters)
+        uni = ((bb[2] - bb[0] + 1.) * (bb[3] - bb[1] + 1.) *2 - inters)
 
         overlaps = inters / uni
         ovmax = np.max(overlaps)
@@ -215,15 +222,19 @@ def mappy_eval(detpath,
 
       #if classname == 'car' or classname == 'person':
         #print('mappy_eval ovmax {} / ovthresh {}'.format(ovmax, ovthresh))
-      print('mappy_eval ovmax {} / ovthresh {} jmax {}'.format(ovmax, ovthresh, jmax))
+      #print('mappy_eval ovmax {} / ovthresh {} jmax {}'.format(ovmax, ovthresh, jmax))
 
       if ovmax > ovthresh:
+	print('mappy_eval ovmax {} / ovthresh {} jmax {}'.format(ovmax, ovthresh, jmax))
         if not R['difficult'][jmax]:
+	  print('mappy_eval 1')
           if not R['det'][jmax]:
             tp[d] = 1.
             R['det'][jmax] = 1
+	    print('mappy_eval 1.1')
           else:
             fp[d] = 1.
+	    print('mappy_eval 1.2')
       else:
         fp[d] = 1.
 
@@ -242,6 +253,6 @@ def mappy_eval(detpath,
 
   #if classname == 'car' or classname == 'person':
     #print('mappy_eval detpath {} annopath {} imagesetfile {} classname {} '.format(detpath, annopath,imagesetfile,classname))
-    #print('mappy_eval tp {} / fp {} rec {} prec {} ap {} npos {}'.format(tp, fp, rec, prec, ap, npos))
+  print('mappy_eval classname {}\n tp {}\n fp {}\n rec {}\n prec {}\n ap {}\n npos {}'.format(classname, tp, fp, rec, prec, ap, npos))
 
   return rec, prec, ap
