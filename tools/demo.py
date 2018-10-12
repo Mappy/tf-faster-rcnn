@@ -158,7 +158,7 @@ if __name__ == '__main__':
     if args.demo_image is None:
         im_names = ['000456.jpg', '000542.jpg', '001150.jpg',
                     '001763.jpg', '004545.jpg']
-        im_names = ['2000010001570.jpg', '2000070000143.jpg']
+        im_names = ['2000040000404_b.jpg']
         for im_name in im_names:
             print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
             print('Demo for data/demo/{}'.format(im_name))

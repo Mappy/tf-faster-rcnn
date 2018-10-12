@@ -68,6 +68,13 @@ else
 fi
 set -x
 
+if [  -f data/mappy/ImageSets/test.txt_annots.pkl ]; then
+  rm data/mappy/ImageSets/test.txt_annots.pkl
+  rm data/mappy/results/*
+  rm -R data/mappy/annotations_cache
+  rm -R output/res101/mappy_test/default/*
+fi
+
 if [ ! -f ${NET_FINAL}.index ]; then
   if [[ ! -z  ${EXTRA_ARGS_SLUG}  ]]; then
     CUDA_VISIBLE_DEVICES=${GPU_ID} python ./tools/trainval_net.py \

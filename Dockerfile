@@ -1,7 +1,14 @@
-FROM nvidia/cuda:8.0-cudnn6-devel
+#FROM nvidia/cuda:8.0-cudnn6-devel
+FROM nvidia/cuda:9.0-cudnn7-devel
 WORKDIR /root
 
 COPY keyboard /etc/default/keyboard
+
+ENV http_proxy http://zscaler-paris.corp.solocal:80/
+
+ENV https_proxy http://zscaler-paris.corp.solocal:80/
+
+ENV no_proxy .mappy.priv
 
 # Get required packages
 RUN apt-get update && \

@@ -93,7 +93,7 @@ class SolverWrapper(object):
       cur_val = pickle.load(fid)
       perm_val = pickle.load(fid)
       last_snapshot_iter = pickle.load(fid)
-
+      print('Restored. cur_val {}'.format(cur_val))
       np.random.set_state(st0)
       self.data_layer._cur = cur
       self.data_layer._perm = perm
@@ -284,7 +284,10 @@ class SolverWrapper(object):
           self.net.train_step_with_summary(sess, blobs, train_op)
         self.writer.add_summary(summary, float(iter))
         # Also check the summary on the validation set
+        print('train_model before self.data_layer_val.forward')
         blobs_val = self.data_layer_val.forward()
+        print('train_model after self.data_layer_val.forward')
+
         summary_val = self.net.get_summary(sess, blobs_val)
         self.valwriter.add_summary(summary_val, float(iter))
         last_summary_time = now
